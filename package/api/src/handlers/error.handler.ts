@@ -1,3 +1,4 @@
+import envVars from "@/config/envVars";
 import { APIError } from "@/utils/APIError";
 import type { ErrorRequestHandler, NextFunction, Request, Response } from "express";
 
@@ -17,9 +18,9 @@ export const errorHandler: ErrorRequestHandler = (err: APIError, _req: Request, 
 	const response = {
 		code: statusCode,
 		message,
-		...(process.env.NODE_ENV === "development" && { stack: err.stack }),
+		...(envVars.NODE_ENV === "development" && { stack: err.stack }),
 	};
-	if (process.env.NODE_ENV === "development") {
+	if (envVars.NODE_ENV === "development") {
 		console.error(err);
 	}
 	res.status(statusCode).send(response);

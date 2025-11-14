@@ -3,6 +3,8 @@ import { Router } from "express";
 
 const router = Router()
 
-router.get("/example", v1Controllers.authControllers.admin.example_controller)
+router.post("/register", v1Controllers.authControllers.user.registerUser)
+router.post("/login", v1Controllers.authControllers.user.loginUser)
+router.post("/verify-otp", v1Controllers.authControllers.user.verifyOTP)
 
 export default router;
