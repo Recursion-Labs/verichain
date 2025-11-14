@@ -2,10 +2,75 @@ pragma language_version >= 0.16 && <= 0.18;
 
 import CompactStandardLibrary;
 
-// public state
-export ledger round: Counter;
+enum ProductStatus {
+    Registered,
+    Minted,
+    Verified
+}
 
-// transition function changing public state
-export circuit increment(): [] {
-  round.increment(1);
+export ledger total_products: Uint<64>;
+export ledger total_nfts: Uint<64>;
+export ledger nonce: Counter;
+
+export ledger product_status: Map<Uint<32>, ProductStatus>;
+export ledger product_owner: Map<Uint<32>, Uint<32>>;
+export ledger product_commitment: Map<Uint<32>, Bytes<32>>;
+export ledger nft_minted: Map<Uint<32>, Boolean>;
+export ledger esg_proof: Map<Uint<32>, Bytes<64>>;
+
+constructor() {
+    total_products = 0;
+    total_nfts = 0;
+}
+
+export circuit register_product(
+    product_id: Uint<32>,
+    owner_id: Uint<32>,
+    commitment: Bytes<32>
+): [] {
+    assert(!product_status.member(disclose(product_id)), "Product exists");
+
+    product_status.insert(disclose(product_id), ProductStatus.Registered);
+    product_owner.insert(disclose(product_id), disclose(owner_id));
+    product_commitment.insert(disclose(product_id), disclose(commitment));
+    nft_minted.insert(disclose(product_id), false);
+
+    total_products = (total_products + 1) as Uint<64>;
+    nonce.increment(1);
+}
+
+export circuit mint_nft(
+    product_id: Uint<32>
+): [] {
+    assert(product_status.member(disclose(product_id)), "Not registered");
+    assert(product_status.lookup(disclose(product_id)) == ProductStatus.Registered, "Invalid state");
+    assert(!nft_minted.lookup(disclose(product_id)), "NFT exists");
+
+    nft_minted.insert(disclose(product_id), true);
+    product_status.insert(disclose(product_id), ProductStatus.Minted);
+
+    total_nfts = (total_nfts + 1) as Uint<64>;
+    nonce.increment(1);
+}
+
+export circuit verify_authenticity(
+    product_id: Uint<32>,
+    proof: Bytes<32>
+): [] {
+    assert(product_status.member(disclose(product_id)), "Not registered");
+    assert(product_status.lookup(disclose(product_id)) == ProductStatus.Minted, "Not minted");
+    assert(proof != (0 as Bytes<32>), "Invalid proof");
+
+    product_status.insert(disclose(product_id), ProductStatus.Verified);
+    nonce.increment(1);
+}
+
+export circuit disclose_esg(
+    product_id: Uint<32>,
+    proof: Bytes<64>
+): [] {
+    assert(product_status.member(disclose(product_id)), "Not registered");
+
+    esg_proof.insert(disclose(product_id), disclose(proof));
+    nonce.increment(1);
 }
