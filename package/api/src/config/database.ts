@@ -1,5 +1,5 @@
+import { logger } from "@/utils/logger";
 import { PrismaClient } from "../../generated/prisma";
-import { logger } from "../utils/logger";
 
 interface CustomNodeJsGlobal {
 	prisma: PrismaClient;
