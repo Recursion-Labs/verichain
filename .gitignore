@@ -3,3 +3,5 @@ bun.lock
 .env
 
 node_modules
+
+.vscode
