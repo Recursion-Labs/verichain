@@ -1,0 +1,27 @@
+{
+  "name": "verichain",
+  "version": "1.0.0",
+  "description": "A privacy-proven product-authenticity layer on the Midnight Network that turns physical items into ZK-verified NFTs, proving origin and integrity without exposing supplier data.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Recursion-Labs/verichain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Recursion-Labs/verichain/issues"
+  },
+  "homepage": "https://github.com/Recursion-Labs/verichain#readme",
+  "dependencies": {
+    "@types/typescript": "^2.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.8"
+  }
+}
