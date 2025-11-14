@@ -19,9 +19,12 @@
   },
   "homepage": "https://github.com/Recursion-Labs/verichain#readme",
   "dependencies": {
-    "@types/typescript": "^2.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
     "vitest": "^4.0.8"
+  },
+  "devDependencies": {
+    "@types/typescript": "^2.0.0",
+    "@biomejs/biome": "1.9.4"
   }
 }
