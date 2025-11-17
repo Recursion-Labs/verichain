@@ -1,6 +1,6 @@
 import type { WitnessContext } from "@midnight-ntwrk/compact-runtime";
-import type { Ledger } from "../managed/main/contract/index.cjs";
-import contractInfo from "../managed/main/compiler/contract-info.json" assert { type: "json" };
+import type { Ledger } from "./managed/main/contract/index.cjs";
+import contractInfo from "./managed/main/compiler/contract-info.json" assert { type: "json" };
 
 /**
  * Witness context for VeriChain contract
