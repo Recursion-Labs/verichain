@@ -8,8 +8,8 @@ import {
   discloseEsg,
   getLedgerState 
 } from "../../contracts/src/index.js";
-import { createWallet } from "../utils/wallet.js";
-import { poseidonHash } from "../utils/hash.js";
+import { createWallet } from "./utils/wallet.js";
+import { poseidonHash } from "./utils/hash.js";
 import { createProviders } from "./providers.js";
 import fs from "fs";
 import path from "path";
@@ -49,7 +49,7 @@ if (command === "deploy") {
       const providers = await createProviders();
       
       console.log("Deploying VeriChain contract...");
-      const deployed = await deploy(wallet, providers);
+      const deployed = await deploy(wallet, providers as any);
       
       await saveContractAddress(deployed.contractAddress);
       console.log(`✓ Contract deployed at: ${deployed.contractAddress}`);
@@ -87,7 +87,7 @@ else if (command === "register") {
       const result = await registerProduct(
         wallet,
         contractAddress,
-        providers,
+        providers as any,
         BigInt(productId),
         BigInt(ownerId),
         commitment
@@ -125,7 +125,7 @@ else if (command === "mint") {
       const result = await mintNft(
         wallet,
         contractAddress,
-        providers,
+        providers as any,
         BigInt(productId)
       );
       
@@ -164,7 +164,7 @@ else if (command === "verify") {
       const result = await verifyProduct(
         wallet,
         contractAddress,
-        providers,
+        providers as any,
         BigInt(productId),
         proof
       );
@@ -207,7 +207,7 @@ else if (command === "esg") {
       const result = await discloseEsg(
         wallet,
         contractAddress,
-        providers,
+        providers as any,
         BigInt(productId),
         proof
       );
@@ -233,7 +233,7 @@ else if (command === "state") {
       const providers = await createProviders();
       
       console.log("Querying contract state...");
-      const state = await getLedgerState(contractAddress, providers);
+      const state = await getLedgerState(contractAddress, providers as any);
       
       console.log("\n📊 Contract State:");
       console.log(`  Total Products: ${state.total_products}`);
