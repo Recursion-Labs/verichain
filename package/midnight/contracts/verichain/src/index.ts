@@ -1,7 +1,9 @@
 import type { Wallet } from "@midnight-ntwrk/wallet-api";
 import type { ContractProviders } from "@midnight-ntwrk/midnight-js-contracts";
 import { Contract, type Ledger, ledger } from "./managed/main/contract/index.cjs";
-import contractInfo from "./managed/main/compiler/contract-info.json" assert { type: "json" };
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const contractInfo = require("./managed/main/compiler/contract-info.json");
 import { 
   buildRegisterProductWitness, 
   buildMintNftWitness, 
