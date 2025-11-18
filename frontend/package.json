@@ -7,7 +7,8 @@
         "lucide-react": "*",
         "react-router-dom": "^6.20.2",
           "react": "^18.3.1",
-          "react-dom": "^18.3.1"
+          "react-dom": "^18.3.1",
+        "@verichain/api": "file:../package/midnight/api/verichain"
       },
       "devDependencies": {
           "@types/node": "^20.10.0",
