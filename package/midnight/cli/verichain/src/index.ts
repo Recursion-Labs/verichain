@@ -17,14 +17,15 @@ interface CliState {
   contractAddress?: string;
   wallet?: any;
   providers?: any;
+  api?: any;
 }
 
 const cliState: CliState = {};
 
 async function runCli() {
-  // Dynamic imports for API components (commented out for demo)
-  // const apiModule = await import('../../../api/verichain/dist/index.js');
-  // const { VeriChainAPI, createWalletAndWaitForFunds, configureProviders } = apiModule;
+  // Dynamic imports for API components
+  const apiModule = await import('../../../api/verichain/dist/index.js');
+  const { VeriChainAPI, configureProviders, buildFreshWallet } = apiModule;
 
   const program = new Command();
 
@@ -72,11 +73,18 @@ program
         case 'deploy': {
           console.log(chalk.yellow('🚧 Deploy command - Setting up wallet and providers...'));
           try {
-            // For demo purposes, simulate deployment without actual blockchain interaction
-            console.log(chalk.blue('Note: This is a demo - actual blockchain deployment requires running Midnight Network locally'));
-            cliState.contractAddress = '0x' + Math.random().toString(16).substr(2, 64);
-            cliState.wallet = {} as any; // Mock wallet
-            cliState.providers = {} as any; // Mock providers
+            // Configure providers
+            cliState.providers = configureProviders(testnetConfig);
+            console.log(chalk.blue('✅ Providers configured'));
+
+            // Create wallet
+            cliState.wallet = await buildFreshWallet(testnetConfig);
+            console.log(chalk.blue('✅ Wallet created and funded'));
+
+            // Deploy contract
+            cliState.api = await VeriChainAPI.deploy(cliState.providers, cliState.wallet);
+            cliState.contractAddress = cliState.api.contractAddress;
+
             console.log(chalk.green('✅ Contract deployed successfully!'));
             console.log(chalk.gray(`Contract address: ${cliState.contractAddress}`));
           } catch (error) {
@@ -91,8 +99,8 @@ program
           } else {
             console.log(chalk.yellow('🔗 Connecting to contract...'));
             try {
-              console.log(chalk.blue('Note: This is a demo - actual blockchain connection requires running Midnight Network locally'));
-              cliState.providers = {} as any; // Mock providers
+              // Configure providers for connection
+              cliState.providers = configureProviders(testnetConfig);
               console.log(chalk.green(`✅ Connected to contract: ${cliState.contractAddress}`));
             } catch (error) {
               console.log(chalk.red(`❌ Connection failed: ${error instanceof Error ? error.message : String(error)}`));
@@ -102,18 +110,22 @@ program
         }
 
         case 'register': {
-          if (!cliState.contractAddress || !cliState.wallet) {
+          if (!cliState.contractAddress || !cliState.wallet || !cliState.api) {
             console.log(chalk.red('❌ Not connected to a contract. Use "deploy" or "connect" first.'));
           } else {
             console.log(chalk.yellow('📝 Registering product...'));
             try {
-              console.log(chalk.blue('Note: This is a demo - actual blockchain operations require running Midnight Network locally'));
               const productId = BigInt(Math.floor(Math.random() * 1000000));
               const ownerId = BigInt(Math.floor(Math.random() * 1000000));
+              const commitment = new Uint8Array(32); // Mock 32-byte commitment
+              crypto.getRandomValues(commitment);
+
+              const result = await cliState.api.registerProduct(cliState.wallet, productId, ownerId, commitment);
+
               console.log(chalk.green('✅ Product registered successfully!'));
               console.log(chalk.gray(`Product ID: ${productId}`));
               console.log(chalk.gray(`Owner ID: ${ownerId}`));
-              console.log(chalk.gray(`Transaction: ${'demo-tx-' + Math.random().toString(36).substr(2, 9)}`));
+              console.log(chalk.gray(`Transaction: ${result.txHash}`));
             } catch (error) {
               console.log(chalk.red(`❌ Product registration failed: ${error instanceof Error ? error.message : String(error)}`));
             }
@@ -122,16 +134,17 @@ program
         }
 
         case 'mint': {
-          if (!cliState.contractAddress || !cliState.wallet) {
+          if (!cliState.contractAddress || !cliState.wallet || !cliState.api) {
             console.log(chalk.red('❌ Not connected to a contract. Use "deploy" or "connect" first.'));
           } else {
             console.log(chalk.yellow('🎨 Minting NFT...'));
             try {
-              console.log(chalk.blue('Note: This is a demo - actual blockchain operations require running Midnight Network locally'));
               const productId = BigInt(Math.floor(Math.random() * 1000000));
+              const result = await cliState.api.mintNft(cliState.wallet, productId);
+
               console.log(chalk.green('✅ NFT minted successfully!'));
               console.log(chalk.gray(`Product ID: ${productId}`));
-              console.log(chalk.gray(`Transaction: ${'demo-tx-' + Math.random().toString(36).substr(2, 9)}`));
+              console.log(chalk.gray(`Transaction: ${result.txHash}`));
             } catch (error) {
               console.log(chalk.red(`❌ NFT minting failed: ${error instanceof Error ? error.message : String(error)}`));
             }
@@ -140,16 +153,20 @@ program
         }
 
         case 'verify': {
-          if (!cliState.contractAddress || !cliState.wallet) {
+          if (!cliState.contractAddress || !cliState.wallet || !cliState.api) {
             console.log(chalk.red('❌ Not connected to a contract. Use "deploy" or "connect" first.'));
           } else {
             console.log(chalk.yellow('🔍 Verifying product authenticity...'));
             try {
-              console.log(chalk.blue('Note: This is a demo - actual blockchain operations require running Midnight Network locally'));
               const productId = BigInt(Math.floor(Math.random() * 1000000));
+              const proof = new Uint8Array(32); // Mock 32-byte proof
+              crypto.getRandomValues(proof);
+
+              const result = await cliState.api.verifyProduct(cliState.wallet, productId, proof);
+
               console.log(chalk.green('✅ Product verified successfully!'));
               console.log(chalk.gray(`Product ID: ${productId}`));
-              console.log(chalk.gray(`Transaction: ${'demo-tx-' + Math.random().toString(36).substr(2, 9)}`));
+              console.log(chalk.gray(`Transaction: ${result.txHash}`));
             } catch (error) {
               console.log(chalk.red(`❌ Product verification failed: ${error instanceof Error ? error.message : String(error)}`));
             }
@@ -229,11 +246,18 @@ program.action(() => {
         case 'deploy': {
           console.log(chalk.yellow('🚧 Deploy command - Setting up wallet and providers...'));
           try {
-            // For demo purposes, simulate deployment without actual blockchain interaction
-            console.log(chalk.blue('Note: This is a demo - actual blockchain deployment requires running Midnight Network locally'));
-            cliState.contractAddress = '0x' + Math.random().toString(16).substr(2, 64);
-            cliState.wallet = {} as any; // Mock wallet
-            cliState.providers = {} as any; // Mock providers
+            // Configure providers
+            cliState.providers = configureProviders(testnetConfig);
+            console.log(chalk.blue('✅ Providers configured'));
+
+            // Create wallet
+            cliState.wallet = await buildFreshWallet(testnetConfig);
+            console.log(chalk.blue('✅ Wallet created and funded'));
+
+            // Deploy contract
+            cliState.api = await VeriChainAPI.deploy(cliState.providers, cliState.wallet);
+            cliState.contractAddress = cliState.api.contractAddress;
+
             console.log(chalk.green('✅ Contract deployed successfully!'));
             console.log(chalk.gray(`Contract address: ${cliState.contractAddress}`));
           } catch (error) {
@@ -248,8 +272,8 @@ program.action(() => {
           } else {
             console.log(chalk.yellow('🔗 Connecting to contract...'));
             try {
-              console.log(chalk.blue('Note: This is a demo - actual blockchain connection requires running Midnight Network locally'));
-              cliState.providers = {} as any; // Mock providers
+              // Configure providers for connection
+              cliState.providers = configureProviders(testnetConfig);
               console.log(chalk.green(`✅ Connected to contract: ${cliState.contractAddress}`));
             } catch (error) {
               console.log(chalk.red(`❌ Connection failed: ${error instanceof Error ? error.message : String(error)}`));
@@ -259,18 +283,22 @@ program.action(() => {
         }
 
         case 'register': {
-          if (!cliState.contractAddress || !cliState.wallet) {
+          if (!cliState.contractAddress || !cliState.wallet || !cliState.api) {
             console.log(chalk.red('❌ Not connected to a contract. Use "deploy" or "connect" first.'));
           } else {
             console.log(chalk.yellow('📝 Registering product...'));
             try {
-              console.log(chalk.blue('Note: This is a demo - actual blockchain operations require running Midnight Network locally'));
               const productId = BigInt(Math.floor(Math.random() * 1000000));
               const ownerId = BigInt(Math.floor(Math.random() * 1000000));
+              const commitment = new Uint8Array(32); // Mock 32-byte commitment
+              crypto.getRandomValues(commitment);
+
+              const result = await cliState.api.registerProduct(cliState.wallet, productId, ownerId, commitment);
+
               console.log(chalk.green('✅ Product registered successfully!'));
               console.log(chalk.gray(`Product ID: ${productId}`));
               console.log(chalk.gray(`Owner ID: ${ownerId}`));
-              console.log(chalk.gray(`Transaction: ${'demo-tx-' + Math.random().toString(36).substr(2, 9)}`));
+              console.log(chalk.gray(`Transaction: ${result.txHash}`));
             } catch (error) {
               console.log(chalk.red(`❌ Product registration failed: ${error instanceof Error ? error.message : String(error)}`));
             }
@@ -279,16 +307,17 @@ program.action(() => {
         }
 
         case 'mint': {
-          if (!cliState.contractAddress || !cliState.wallet) {
+          if (!cliState.contractAddress || !cliState.wallet || !cliState.api) {
             console.log(chalk.red('❌ Not connected to a contract. Use "deploy" or "connect" first.'));
           } else {
             console.log(chalk.yellow('🎨 Minting NFT...'));
             try {
-              console.log(chalk.blue('Note: This is a demo - actual blockchain operations require running Midnight Network locally'));
               const productId = BigInt(Math.floor(Math.random() * 1000000));
+              const result = await cliState.api.mintNft(cliState.wallet, productId);
+
               console.log(chalk.green('✅ NFT minted successfully!'));
               console.log(chalk.gray(`Product ID: ${productId}`));
-              console.log(chalk.gray(`Transaction: ${'demo-tx-' + Math.random().toString(36).substr(2, 9)}`));
+              console.log(chalk.gray(`Transaction: ${result.txHash}`));
             } catch (error) {
               console.log(chalk.red(`❌ NFT minting failed: ${error instanceof Error ? error.message : String(error)}`));
             }
@@ -297,16 +326,20 @@ program.action(() => {
         }
 
         case 'verify': {
-          if (!cliState.contractAddress || !cliState.wallet) {
+          if (!cliState.contractAddress || !cliState.wallet || !cliState.api) {
             console.log(chalk.red('❌ Not connected to a contract. Use "deploy" or "connect" first.'));
           } else {
             console.log(chalk.yellow('🔍 Verifying product authenticity...'));
             try {
-              console.log(chalk.blue('Note: This is a demo - actual blockchain operations require running Midnight Network locally'));
               const productId = BigInt(Math.floor(Math.random() * 1000000));
+              const proof = new Uint8Array(32); // Mock 32-byte proof
+              crypto.getRandomValues(proof);
+
+              const result = await cliState.api.verifyProduct(cliState.wallet, productId, proof);
+
               console.log(chalk.green('✅ Product verified successfully!'));
               console.log(chalk.gray(`Product ID: ${productId}`));
-              console.log(chalk.gray(`Transaction: ${'demo-tx-' + Math.random().toString(36).substr(2, 9)}`));
+              console.log(chalk.gray(`Transaction: ${result.txHash}`));
             } catch (error) {
               console.log(chalk.red(`❌ Product verification failed: ${error instanceof Error ? error.message : String(error)}`));
             }

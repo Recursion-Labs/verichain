@@ -1,50 +1,50 @@
 {
-  "name": "@verichain/api",
-  "version": "1.0.0",
-  "description": "VeriChain API for interacting with Midnight Network smart contracts",
-  "main": "dist/index.js",
-  "type": "module",
-  "exports": {
-    ".": {
-      "browser": {
-        "types": "./dist/browser-index.d.ts",
-        "import": "./dist/browser-index.js"
-      },
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./node-api": {
-      "types": "./dist/node/api.d.ts",
-      "import": "./dist/node/api.js"
-    },
-    "./browser-api": {
-      "types": "./dist/browser/api.d.ts",
-      "import": "./dist/browser/api.js"
-    }
-  },
-  "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
-    "test": "vitest",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write ."
-  },
-  "dependencies": {
-    "@midnight-ntwrk/compact-runtime": "^0.9.0",
-    "@midnight-ntwrk/ledger": "^4.0.0",
-    "@midnight-ntwrk/midnight-js-contracts": "^2.0.2",
-    "@midnight-ntwrk/midnight-js-http-client-proof-provider": "^2.0.2",
-    "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "^2.0.2",
-    "@midnight-ntwrk/midnight-js-network-id": "^2.0.2",
-    "@midnight-ntwrk/wallet": "^5.0.0",
-    "@midnight-ntwrk/wallet-api": "^5.0.0",
-    "@verichain/contracts": "file:../../contracts/verichain",
-    "rxjs": "^7.8.1"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.8",
-    "@biomejs/biome": "1.9.4"
-  }
+	"name": "@verichain/api",
+	"version": "1.0.0",
+	"description": "VeriChain API for interacting with Midnight Network smart contracts",
+	"main": "dist/index.js",
+	"type": "module",
+	"exports": {
+		".": {
+			"browser": {
+				"types": "./dist/browser-index.d.ts",
+				"import": "./dist/browser-index.js"
+			},
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./node-api": {
+			"types": "./dist/node/api.d.ts",
+			"import": "./dist/node/api.js"
+		},
+		"./browser-api": {
+			"types": "./dist/browser/api.d.ts",
+			"import": "./dist/browser/api.js"
+		}
+	},
+	"scripts": {
+		"build": "tsc",
+		"dev": "tsc --watch",
+		"test": "vitest",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write ."
+	},
+	"dependencies": {
+		"@midnight-ntwrk/compact-runtime": "^0.9.0",
+		"@midnight-ntwrk/ledger": "^4.0.0",
+		"@midnight-ntwrk/midnight-js-contracts": "^2.0.2",
+		"@midnight-ntwrk/midnight-js-http-client-proof-provider": "^2.0.2",
+		"@midnight-ntwrk/midnight-js-indexer-public-data-provider": "^2.0.2",
+		"@midnight-ntwrk/midnight-js-network-id": "^2.0.2",
+		"@midnight-ntwrk/wallet": "^5.0.0",
+		"@midnight-ntwrk/wallet-api": "^5.0.0",
+		"@verichain/contracts": "file:../../contracts/verichain",
+		"rxjs": "^7.8.1"
+	},
+	"devDependencies": {
+		"@types/node": "^20.0.0",
+		"typescript": "^5.9.3",
+		"vitest": "^4.0.8",
+		"@biomejs/biome": "1.9.4"
+	}
 }
