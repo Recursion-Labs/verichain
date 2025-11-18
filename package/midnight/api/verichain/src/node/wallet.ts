@@ -6,7 +6,17 @@ import {
 import { WalletBuilder } from "@midnight-ntwrk/wallet";
 import type { Wallet } from "@midnight-ntwrk/wallet-api";
 import { firstValueFrom } from "rxjs";
+import { webcrypto } from "node:crypto";
 import type { VeriChainConfig } from "../common/config.js";
+
+/**
+ * Generates a random 32-byte seed for wallet creation
+ */
+function generateRandomSeed(): string {
+	const bytes = new Uint8Array(32);
+	webcrypto.getRandomValues(bytes);
+	return Buffer.from(bytes).toString("hex");
+}
 
 /**
  * Create a wallet and wait for it to have funds
@@ -57,7 +67,7 @@ export async function buildFreshWallet(
 		config.indexerWS,
 		config.proofServer,
 		config.node,
-		"", // empty seed for fresh wallet
+		generateRandomSeed(), // Generate random 32-byte seed
 		getZswapNetworkId(),
 		"info",
 	);
