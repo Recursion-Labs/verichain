@@ -13,7 +13,8 @@
   "scripts": {
     "build": "tsc && cp -r src/managed dist/",
     "dev": "tsc --watch",
-    "test" : "vitest run"
+    "test" : "vitest run",
+    "compile" : "compact compile src/main.compact src/managed/main"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "^0.9.0",
