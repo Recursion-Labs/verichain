@@ -4,6 +4,7 @@ import { promisify } from "node:util";
 import { type Interface, createInterface } from "readline";
 import chalk from "chalk";
 import { Command } from "commander";
+import { createCommitment } from "./utils/hash.js";
 
 // Simple testnet config
 const testnetConfig = {
@@ -175,23 +176,35 @@ async function runCli() {
 									rl,
 									chalk.cyan("Enter Owner ID (number): "),
 								);
-								const commitmentStr = await question(
+								const commitmentInput = await question(
 									rl,
 									chalk.cyan(
-										"Enter Product Commitment (hex string, 64 characters): ",
+										"Enter Product Commitment (raw string or hex string, 64 characters): ",
 									),
 								);
 
 								const productId = BigInt(productIdStr.trim());
 								const ownerId = BigInt(ownerIdStr.trim());
 
-								// Convert hex string to Uint8Array
-								const commitment = new Uint8Array(32);
-								for (let i = 0; i < 32; i++) {
-									commitment[i] = Number.parseInt(
-										commitmentStr.slice(i * 2, i * 2 + 2),
-										16,
-									);
+								let commitment: Uint8Array;
+
+								// Check if input is a hex string (64 characters) or raw data
+								const trimmedInput = commitmentInput.trim();
+								if (
+									trimmedInput.length === 64 &&
+									/^[0-9a-fA-F]+$/.test(trimmedInput)
+								) {
+									// Convert hex string to Uint8Array
+									commitment = new Uint8Array(32);
+									for (let i = 0; i < 32; i++) {
+										commitment[i] = Number.parseInt(
+											trimmedInput.slice(i * 2, i * 2 + 2),
+											16,
+										);
+									}
+								} else {
+									// Use raw string input and create commitment hash
+									commitment = createCommitment(trimmedInput);
 								}
 
 								const result = await cliState.api.registerProduct(
@@ -204,6 +217,13 @@ async function runCli() {
 								console.log(chalk.green("✅ Product registered successfully!"));
 								console.log(chalk.gray(`Product ID: ${productId}`));
 								console.log(chalk.gray(`Owner ID: ${ownerId}`));
+								console.log(
+									chalk.gray(
+										`Commitment: ${Array.from(commitment)
+											.map((b) => b.toString(16).padStart(2, "0"))
+											.join("")}`,
+									),
+								);
 								console.log(chalk.gray(`Transaction: ${result.txHash}`));
 							} catch (error) {
 								console.log(
@@ -339,6 +359,32 @@ async function runCli() {
 						break;
 					}
 
+					case "hash": {
+						console.log(chalk.yellow("🔐 Generating commitment hash..."));
+						try {
+							const inputData = await question(
+								rl,
+								chalk.cyan("Enter data to hash: "),
+							);
+
+							const hash = createCommitment(inputData.trim());
+							const hexHash = Array.from(hash)
+								.map((b) => b.toString(16).padStart(2, "0"))
+								.join("");
+
+							console.log(chalk.green("✅ Commitment hash generated!"));
+							console.log(chalk.gray(`Input: "${inputData.trim()}"`));
+							console.log(chalk.gray(`Hash: ${hexHash}`));
+						} catch (error) {
+							console.log(
+								chalk.red(
+									`❌ Hash generation failed: ${error instanceof Error ? error.message : String(error)}`,
+								),
+							);
+						}
+						break;
+					}
+
 					default:
 						if (command) {
 							console.log(chalk.red(`Unknown command: ${command}`));
@@ -389,6 +435,9 @@ async function runCli() {
 							"  verify     - Verify product authenticity (requires Product ID, Proof)",
 						);
 						console.log("  balance    - Check wallet balance");
+						console.log(
+							"  hash       - Generate commitment hash from input data",
+						);
 						console.log("  help       - Show this help");
 						console.log("  exit       - Exit interactive mode\n");
 						break;
@@ -485,23 +534,35 @@ async function runCli() {
 									rl,
 									chalk.cyan("Enter Owner ID (number): "),
 								);
-								const commitmentStr = await question(
+								const commitmentInput = await question(
 									rl,
 									chalk.cyan(
-										"Enter Product Commitment (hex string, 64 characters): ",
+										"Enter Product Commitment (raw string or hex string, 64 characters): ",
 									),
 								);
 
 								const productId = BigInt(productIdStr.trim());
 								const ownerId = BigInt(ownerIdStr.trim());
 
-								// Convert hex string to Uint8Array
-								const commitment = new Uint8Array(32);
-								for (let i = 0; i < 32; i++) {
-									commitment[i] = Number.parseInt(
-										commitmentStr.slice(i * 2, i * 2 + 2),
-										16,
-									);
+								let commitment: Uint8Array;
+
+								// Check if input is a hex string (64 characters) or raw data
+								const trimmedInput = commitmentInput.trim();
+								if (
+									trimmedInput.length === 64 &&
+									/^[0-9a-fA-F]+$/.test(trimmedInput)
+								) {
+									// Convert hex string to Uint8Array
+									commitment = new Uint8Array(32);
+									for (let i = 0; i < 32; i++) {
+										commitment[i] = Number.parseInt(
+											trimmedInput.slice(i * 2, i * 2 + 2),
+											16,
+										);
+									}
+								} else {
+									// Use raw string input and create commitment hash
+									commitment = createCommitment(trimmedInput);
 								}
 
 								const result = await cliState.api.registerProduct(
@@ -514,6 +575,13 @@ async function runCli() {
 								console.log(chalk.green("✅ Product registered successfully!"));
 								console.log(chalk.gray(`Product ID: ${productId}`));
 								console.log(chalk.gray(`Owner ID: ${ownerId}`));
+								console.log(
+									chalk.gray(
+										`Commitment: ${Array.from(commitment)
+											.map((b) => b.toString(16).padStart(2, "0"))
+											.join("")}`,
+									),
+								);
 								console.log(chalk.gray(`Transaction: ${result.txHash}`));
 							} catch (error) {
 								console.log(
@@ -640,6 +708,32 @@ async function runCli() {
 									),
 								);
 							}
+						}
+						break;
+					}
+
+					case "hash": {
+						console.log(chalk.yellow("🔐 Generating commitment hash..."));
+						try {
+							const inputData = await question(
+								rl,
+								chalk.cyan("Enter data to hash: "),
+							);
+
+							const hash = createCommitment(inputData.trim());
+							const hexHash = Array.from(hash)
+								.map((b) => b.toString(16).padStart(2, "0"))
+								.join("");
+
+							console.log(chalk.green("✅ Commitment hash generated!"));
+							console.log(chalk.gray(`Input: "${inputData.trim()}"`));
+							console.log(chalk.gray(`Hash: ${hexHash}`));
+						} catch (error) {
+							console.log(
+								chalk.red(
+									`❌ Hash generation failed: ${error instanceof Error ? error.message : String(error)}`,
+								),
+							);
 						}
 						break;
 					}
