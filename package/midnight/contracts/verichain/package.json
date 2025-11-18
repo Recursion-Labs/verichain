@@ -13,14 +13,15 @@
   "scripts": {
     "build": "tsc && cp -r src/managed dist/",
     "dev": "tsc --watch",
-    "test" : "vitest run"
+    "test" : "vitest run",
+    "compile" : "compact compile src/main.compact src/managed/main"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "^0.9.0",
     "@midnight-ntwrk/ledger": "^4.0.0",
     "@midnight-ntwrk/midnight-js-contracts": "^2.0.2",
     "@midnight-ntwrk/midnight-js-types": "^2.0.2",
-    "@midnight-ntwrk/wallet-api": "^2.0.2",
+    "@midnight-ntwrk/wallet-api": "^5.0.0",
     "pino": "^8.0.0",
     "rxjs": "^7.8.1"
     

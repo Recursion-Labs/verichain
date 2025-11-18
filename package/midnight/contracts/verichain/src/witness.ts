@@ -1,6 +1,15 @@
 import type { WitnessContext } from "@midnight-ntwrk/compact-runtime";
 import type { Ledger } from "./managed/main/contract/index.cjs";
-import contractInfo from "./managed/main/compiler/contract-info.json" assert { type: "json" };
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const contractInfo = JSON.parse(
+  readFileSync(join(__dirname, "./managed/main/compiler/contract-info.json"), "utf8")
+);
 
 /**
  * Witness context for VeriChain contract

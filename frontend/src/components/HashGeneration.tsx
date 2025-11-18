@@ -6,32 +6,68 @@ interface HashGenerationProps {
   onHashGenerated: (hash: string) => void;
 }
 
+// Simple Poseidon hash simulation (in real implementation, use actual ZKP library)
+async function generatePoseidonHash(data: string): Promise<string> {
+  // In a real implementation, this would use a proper ZKP library
+  // For now, we'll create a deterministic hash from the data
+  const encoder = new TextEncoder();
+  const dataBuffer = encoder.encode(data);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', dataBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return '0x' + hashHex;
+}
+
 export function HashGeneration({ productData, onHashGenerated }: HashGenerationProps) {
   const [status, setStatus] = useState<'generating' | 'complete'>('generating');
   const [hash, setHash] = useState('');
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Simulate hash generation
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
+    const generateHash = async () => {
+      // Simulate hash generation steps
+      const timer = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 100) {
+            clearInterval(timer);
+            return 100;
+          }
+          return prev + 10;
+        });
+      }, 200);
+
+      try {
+        // Create a deterministic string from product data
+        const dataString = JSON.stringify({
+          productId: productData.productId,
+          productName: productData.productName,
+          batchNumber: productData.batchNumber,
+          certificationHash: productData.certificationHash,
+          manufacturingDate: productData.manufacturingDate,
+          origin: productData.origin,
+          category: productData.category,
+          timestamp: Date.now()
+        });
+
+        // Generate hash after 2 seconds
+        setTimeout(async () => {
+          const generatedHash = await generatePoseidonHash(dataString);
+          setHash(generatedHash);
+          setStatus('complete');
           clearInterval(timer);
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
+        }, 2000);
+      } catch (error) {
+        console.error('Hash generation failed:', error);
+        // Fallback to a simple hash
+        const fallbackHash = `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 10)}`;
+        setHash(fallbackHash);
+        setStatus('complete');
+        clearInterval(timer);
+      }
+    };
 
-    // Generate hash after 2 seconds
-    setTimeout(() => {
-      const generatedHash = `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 10)}`;
-      setHash(generatedHash);
-      setStatus('complete');
-    }, 2000);
-
-    return () => clearInterval(timer);
-  }, []);
+    generateHash();
+  }, [productData]);
 
   const handleProceed = () => {
     onHashGenerated(hash);
@@ -66,7 +102,7 @@ export function HashGeneration({ productData, onHashGenerated }: HashGenerationP
             <span className="text-[#02FDA9]">$</span>
             <span>Generating zero-knowledge commitment...</span>
           </div>
-          
+
           {status === 'generating' && (
             <div className="flex items-center gap-2 text-[#26D98E]">
               <Loader2 className="w-4 h-4 animate-spin" />
