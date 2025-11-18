@@ -40,6 +40,7 @@
     "@types/helmet": "^4.0.0",
     "@types/module-alias": "^2.0.4",
     "@types/morgan": "^1.9.10",
-    "@types/typescript": "^2.0.0"
+    "@types/typescript": "^2.0.0",
+    "ts-node": "^10.9.2"
   }
 }
