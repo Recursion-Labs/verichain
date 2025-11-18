@@ -1,48 +1,89 @@
 import { useState } from 'react';
-import { Search, CheckCircle, XCircle, Hash, Package, Calendar, MapPin, Shield } from 'lucide-react';
+import { Search, CheckCircle, XCircle, Hash, Package, Calendar, MapPin, Shield, AlertCircle } from 'lucide-react';
+import { blockchainService } from '../services/blockchain';
 
 export function VerificationScreen() {
   const [productId, setProductId] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<'verified' | 'failed' | null>(null);
   const [productDetails, setProductDetails] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
   const [verificationSteps, setVerificationSteps] = useState({
     retrieving: false,
     comparing: false,
     verifying: false,
   });
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setVerifying(true);
     setVerificationResult(null);
+    setError(null);
     setVerificationSteps({ retrieving: false, comparing: false, verifying: false });
 
-    // Simulate verification steps
-    setTimeout(() => setVerificationSteps(prev => ({ ...prev, retrieving: true })), 300);
-    setTimeout(() => setVerificationSteps(prev => ({ ...prev, comparing: true })), 900);
-    setTimeout(() => setVerificationSteps(prev => ({ ...prev, verifying: true })), 1500);
+    try {
+      // Step 1: Initialize blockchain service
+      setVerificationSteps(prev => ({ ...prev, retrieving: true }));
+      const initialized = await blockchainService.initialize();
+      if (!initialized) {
+        throw new Error('Failed to initialize blockchain service');
+      }
 
-    // Simulate verification
-    setTimeout(() => {
-      const isValid = Math.random() > 0.3; // 70% chance of success for demo
-      setVerificationResult(isValid ? 'verified' : 'failed');
-      
-      if (isValid) {
+      // Step 2: Ensure we have a contract connection
+      if (!blockchainService.isInitialized()) {
+        const contractAddress = localStorage.getItem('verichain_contract');
+        if (contractAddress) {
+          const connected = await blockchainService.connectToContract(contractAddress);
+          if (!connected) {
+            throw new Error('Failed to connect to VeriChain contract');
+          }
+        } else {
+          throw new Error('No VeriChain contract found. Please register a product first.');
+        }
+      }
+
+      // Step 3: Get contract state and verify product
+      setVerificationSteps(prev => ({ ...prev, comparing: true }));
+      const contractState = await blockchainService.getContractState();
+
+      // Check if product exists in contract state
+      const productExists = contractState?.product_status?.[productId] !== undefined;
+      const productStatus = contractState?.product_status?.[productId];
+
+      setVerificationSteps(prev => ({ ...prev, verifying: true }));
+
+      if (productExists && productStatus === 'Minted') {
+        // Product is verified
+        setVerificationResult('verified');
+
+        // Mock product details (in real implementation, this would come from contract or database)
         setProductDetails({
           productId,
-          productName: 'Luxury Watch Model X',
-          batchNumber: 'BATCH-2025-Q1-001',
-          manufacturingDate: '2025-01-15',
+          productName: 'Verified Luxury Product',
+          batchNumber: `BATCH-2025-Q1-${Math.floor(Math.random() * 100)}`,
+          manufacturingDate: new Date().toISOString().split('T')[0],
           origin: 'Switzerland',
           category: 'Luxury Goods',
-          hash: '0xabcd1234...ef567890',
-          nftId: '#042',
+          hash: `0x${Math.random().toString(16).substring(2, 10)}...${Math.random().toString(16).substring(2, 10)}`,
+          nftId: `#${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
         });
+      } else if (productExists && productStatus === 'Registered') {
+        // Product exists but not minted yet
+        setVerificationResult('failed');
+        setError('Product is registered but NFT has not been minted yet.');
+      } else {
+        // Product not found
+        setVerificationResult('failed');
+        setError('Product not found in the VeriChain registry.');
       }
-      
+
+    } catch (err: any) {
+      console.error('Verification failed:', err);
+      setVerificationResult('failed');
+      setError(err.message || 'Verification failed due to network error');
+    } finally {
       setVerifying(false);
-    }, 2200);
+    }
   };
 
   return (
@@ -219,8 +260,8 @@ export function VerificationScreen() {
 
                 <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 space-y-2">
                   <div className="flex items-center gap-2 text-red-400">
-                    <XCircle className="w-4 h-4" />
-                    <span>Commitment Not Found</span>
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{error || 'Commitment Not Found'}</span>
                   </div>
                   <div className="flex items-center gap-2 text-red-400">
                     <XCircle className="w-4 h-4" />
