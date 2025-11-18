@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  # Midnight Network Services
+  midnight-node:
+    image: 'midnightnetwork/midnight-node:0.12.0'
+    container_name: 'midnight-node'
+    ports:
+      - "9944:9944"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9944/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+    environment:
+      CFG_PRESET: "dev"
+    restart: unless-stopped
+    networks:
+      - midnight-network
+
+  midnight-indexer:
+    image: 'midnightntwrk/indexer-standalone:2.1.1'
+    container_name: 'midnight-indexer'
+    ports:
+      - "8088:8088"
+    environment:
+      RUST_LOG: "indexer=info,chain_indexer=info,indexer_api=info,wallet_indexer=info,indexer_common=info,fastrace_opentelemetry=off,info"
+      APP__INFRA__SECRET: "303132333435363738393031323334353637383930313233343536373839303132"
+      APP__INFRA__NODE__URL: "ws://midnight-node:9944"
+    depends_on:
+      midnight-node:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - midnight-network
+
+  midnight-proof-server:
+    image: "midnightnetwork/proof-server:4.0.0"
+    container_name: 'midnight-proof-server'
+    command: ["midnight-proof-server --network undeployed"]
+    ports:
+      - "6300:6300"
+    environment:
+      RUST_BACKTRACE: "full"
+    restart: unless-stopped
+    networks:
+      - midnight-network
+
+
+  # Backend API
+  verichain-api:
+    build:
+      context: ../../package/api
+      dockerfile: Dockerfile
+    container_name: 'verichain-api'
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    depends_on:
+      midnight-node:
+        condition: service_healthy
+      midnight-indexer:
+        condition: service_started
+      midnight-proof-server:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ../../package/api/logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - app-network
+      - midnight-network
+
+  # Frontend
+  verichain-frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    container_name: 'verichain-frontend'
+    ports:
+      - "80:80"
+    depends_on:
+      - verichain-api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - app-network
+
+
+networks:
+  midnight-network:
+    driver: bridge
+  app-network:
+    driver: bridge
