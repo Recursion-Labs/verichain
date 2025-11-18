@@ -5,3 +5,8 @@ bun.lock
 node_modules
 
 .vscode
+
+dist
+managed
+
+logs

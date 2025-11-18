@@ -3,8 +3,17 @@
   "version": "1.0.0",
   "description": "A privacy-proven product-authenticity layer on the Midnight Network that turns physical items into ZK-verified NFTs, proving origin and integrity without exposing supplier data.",
   "main": "index.js",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run build --workspaces",
+    "build:contracts": "npm run build --workspace=@verichain/contracts",
+    "build:api": "npm run build --workspace=@verichain/api",
+    "build:cli": "npm run build --workspace=@verichain/cli",
+    "cli": "npm run start --workspace=@verichain/cli",
+    "test": "npm run test --workspaces"
   },
   "repository": {
     "type": "git",
@@ -13,11 +22,13 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Recursion-Labs/verichain/issues"
   },
-  "homepage": "https://github.com/Recursion-Labs/verichain#readme",
+  "homepage": {
+    "url": "https://github.com/Recursion-Labs/verichain#readme"
+  },
   "dependencies": {
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3",
