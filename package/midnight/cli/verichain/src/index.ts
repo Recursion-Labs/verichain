@@ -46,8 +46,41 @@ async function runCli() {
 		.version("1.0.0");
 
 	program
+		.command("deploy")
+		.description("Deploy a new VeriChain contract")
+		.action(async () => {
+			console.log(chalk.yellow("🚧 Deploying VeriChain contract..."));
+			try {
+				// Dynamic imports for API components
+				const apiModule = await import("../../../api/verichain/dist/index.js");
+				const { VeriChainAPI, configureProviders, buildFreshWallet } = apiModule;
+
+				// Configure providers
+				const providers = configureProviders(testnetConfig);
+				console.log(chalk.blue("✅ Providers configured"));
+
+				// Create wallet
+				const wallet = await buildFreshWallet(testnetConfig);
+				console.log(chalk.blue("✅ Wallet created and funded"));
+
+				// Deploy contract
+				const api = await VeriChainAPI.deploy(providers, wallet);
+				const contractAddress = api.deployedContractAddress;
+
+				console.log(chalk.green("✅ Contract deployed successfully!"));
+				console.log(chalk.gray(`Contract address: ${contractAddress}`));
+			} catch (error) {
+				console.log(
+					chalk.red(
+						`❌ Deployment failed: ${error instanceof Error ? error.message : String(error)}`,
+					),
+				);
+				process.exit(1);
+			}
+		});
+
+	program
 		.command("interactive")
-		.description("Start interactive mode")
 		.action(async () => {
 			console.log(chalk.blue("🚀 VeriChain CLI - Interactive Mode"));
 			console.log(

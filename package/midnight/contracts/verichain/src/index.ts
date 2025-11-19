@@ -10,13 +10,58 @@ import {
   buildVerifyAuthenticityWitness, 
   buildDiscloseEsgWitness 
 } from "./witness.js";
+import { readFileSync } from 'fs';
 import { firstValueFrom } from "rxjs";
+
+/**
+ * Configuration for VeriChain API
+ */
+interface VeriChainConfig {
+	indexer: string;
+	indexerWS: string;
+	node: string;
+	proofServer: string;
+}
+
+/**
+ * Load verifier keys for all circuits
+ */
+function loadVerifierKeys(): Record<string, { prover: Buffer; verifier: Buffer }> {
+  const keys: Record<string, { prover: Buffer; verifier: Buffer }> = {};
+  
+  const circuitNames = ['register_product', 'mint_nft', 'verify_authenticity', 'disclose_esg'];
+  
+  for (const circuitName of circuitNames) {
+    try {
+      keys[circuitName] = {
+        prover: readFileSync(new URL(`./managed/main/keys/${circuitName}.prover`, import.meta.url)),
+        verifier: readFileSync(new URL(`./managed/main/keys/${circuitName}.verifier`, import.meta.url))
+      };
+    } catch (error) {
+      console.warn(`Warning: Could not load keys for circuit ${circuitName}:`, error);
+    }
+  }
+  
+  return keys;
+}
 
 /**
  * VeriChain contract instance
  * Uses the compiled Contract class from managed/main/contract
  */
+const verifierKeys = loadVerifierKeys();
+
+// Attach getVerifierKeys method to the Contract prototype
+(Contract as any).prototype.getVerifierKeys = function() {
+  return verifierKeys;
+};
+
 export const veriChainContract = new Contract({});
+
+// Also attach directly to the instance
+(veriChainContract as any).getVerifierKeys = function() {
+  return verifierKeys;
+};
 
 /**
  * Deploy the VeriChain contract to the Midnight network
@@ -32,14 +77,25 @@ export async function deploy(
     // Get wallet state
     const walletState = await firstValueFrom(wallet.state());
     
-    // Import the deployment function dynamically
+    // Import the deployment function dynamically to avoid type issues
     const { deployContract } = await import("@midnight-ntwrk/midnight-js-contracts");
     
-    // Deploy with minimal configuration
-    const deployed = await deployContract(providers as any, {
-      contract: veriChainContract,
-      args: [],
-    } as any);
+    console.log("DEBUG: Contract instance:", veriChainContract);
+    console.log("DEBUG: Contract has getVerifierKeys:", typeof (veriChainContract as any).getVerifierKeys);
+    console.log("DEBUG: Calling contract.getVerifierKeys():", (veriChainContract as any).getVerifierKeys());
+    
+    // Create a contract wrapper that ensures getVerifierKeys is available
+    const contractWithKeys = Object.create(veriChainContract);
+    contractWithKeys.getVerifierKeys = () => verifierKeys;
+    
+    console.log("DEBUG: Contract wrapper:", contractWithKeys);
+    console.log("DEBUG: Wrapper has getVerifierKeys:", typeof contractWithKeys.getVerifierKeys);
+    console.log("DEBUG: Calling wrapper.getVerifierKeys():", contractWithKeys.getVerifierKeys());
+    
+    // Deploy with contract wrapper
+    const deployed = await deployContract(providers, {
+      contract: contractWithKeys
+    });
 
     return {
       contractAddress: (deployed as any).deployTxData?.public?.contractAddress || (deployed as any).contractAddress,
