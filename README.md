@@ -1,77 +1,89 @@
 # VeriChain
 
-A privacy-proven product-authenticity layer on the Midnight Network that turns physical items into ZK-verified NFTs, proving origin and integrity without exposing supplier data.
+<p align="center">
+  <img src="https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB" alt="React">
+  <img src="https://img.shields.io/badge/vite-%23646CFF.svg?style=for-the-badge&logo=vite&logoColor=white" alt="Vite">
+  <img src="https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=white" alt="Express.js">
+  <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/Prisma-%232D3748.svg?style=for-the-badge&logo=prisma&logoColor=white" alt="Prisma">
+  <img src="https://img.shields.io/badge/postgresql-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL">
+  <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
+  <img src="https://img.shields.io/badge/Midnight-black?style=for-the-badge" alt="Midnight">
+</p>
 
-## Key features
+VeriChain is a privacy-preserving blockchain-based authenticity system that protects enterprise confidentiality while giving consumers public proof of trust.
 
-- Private product registration — manufacturers commit creation events as private inputs.
-- veriNFT minting — privacy-preserving NFTs with hashed product metadata.
-- ZK proof of authenticity — verify on-chain proofs without revealing raw supply-chain data.
-- Consumer scan (QR/NFC) — fetch authenticity results via NFT ID (optional for MVP).
-- Optional ESG proofs — attach cryptographic proofs for sustainability / compliance.
+## The Problem
 
-## How it works
+In today's market, there's a clear need for a system that can verify a product's authenticity without compromising sensitive business information. Here's why current solutions fall short:
 
-1. Manufacturer generates a combined Poseidon hash of product attributes (productId, batch, origin, certificate).
-2. A compact smart contract on Midnight stores the private commitment and mints a veriNFT.
-3. Consumer scans a QR/NFC linked to the NFT ID (or enters it manually). The dApp verifies commitment existence via a ZK proof.
-4. The app displays authenticity status:
-   - ✅ Authentic product — proof validated
-   - ❌ Invalid proof — unverified source
+- **Public blockchains**, like Ethereum, expose all supplier data, creating significant privacy risks for businesses.
+- **Centralized systems**, such as GS1 or SAP, are opaque and lack the verifiable trust that a blockchain can provide.
+- **The core conflict**: Businesses want to offer verification but are unwilling to reveal their trade secrets in the process.
 
-## Hackathon MVP scope
+This creates a gap for a solution that can bridge the need for public trust with the requirement of enterprise privacy.
 
-- Show hashing of product data.
-- Mint a veriNFT.
-- Verify authenticity via an on-chain ZK proof.
-- QR/NFC is optional for the MVP.
+## Our Solution: The VeriChain MVP
 
-## Tech stack
+VeriChain is a decentralized application that leverages the Midnight network to provide a privacy-first solution for product authenticity. Our Minimum Viable Product (MVP) demonstrates how businesses can register their products and generate authenticity proofs, while consumers can verify these proofs without either party exposing sensitive information.
 
-- Blockchain: Midnight Network (compact smart contracts + ZK runtime)
-- Crypto: Poseidon hash commitments
-- Contracts: Compact language for private commitments and NFT minting
-- Frontend: Minimal manufacturer and consumer dApps
+## Features
 
-## Demo flow (example)
+- **User Authentication**: Secure registration and login for manufacturers.
+- **Product Registration**: Manufacturers can register their products, creating a unique, private record on the Midnight network.
+- **NFT-based Verification**: For each product, a unique "veriNFT" can be minted, acting as a verifiable certificate of authenticity.
+- **Public Verification**: Consumers can scan a product's QR code or enter its unique ID to verify its authenticity without needing to know any of the underlying business data.
 
-- Manufacturer dApp:
+### Feature Flow
 
-  - Input: productId, batch, origin, certificate hash
-  - Compute H = Poseidon(productId, batch, cert, origin)
-  - Call: registerProduct(private string productData)
-  - Store commitment (H) + timestamp; mint veriNFT
+1.  **Manufacturer Registration**: A manufacturer signs up on the VeriChain platform.
+2.  **Product Creation**: The manufacturer registers a new product, providing its details. This creates a commitment on the Midnight network.
+3.  **veriNFT Minting**: A veriNFT is minted for the product, linked to its authenticity record.
+4.  **Consumer Verification**: A consumer receives a product and uses the VeriChain app to scan its unique identifier.
+5.  **Proof of Authenticity**: The app communicates with the Midnight network to verify the product's authenticity, returning a simple "verified" or "not verified" status to the consumer.
 
-- Consumer dApp:
-  - Scan `NFT_ID` or enter it manually
-  - Call: verifyAuthenticity(productHash) → check commitment existence
-  - Display result and minted timestamp
+## Future Scope
 
-## Repository structure
+VeriChain is just getting started. Here are some of the features and improvements we're planning for the future:
 
-- `contracts/` — compact smart contracts (commitments, veriNFT, verification)
-- `frontend-manufacturer/` — dApp to register and mint
-- `frontend-consumer/` — dApp to scan/verify authenticity
-- `zk/` — Poseidon hashing utilities and proof helpers
-- `docs/` — PRD, architecture, and demo notes
+- **Supply Chain Tracking**: Expanding the system to track a product's journey through the entire supply chain, with each step recorded as a private transaction on the Midnight network.
+- **Decentralized Identity Integration**: Allowing manufacturers and consumers to manage their identities in a decentralized way.
+- **Advanced Analytics**: Providing manufacturers with privacy-preserving analytics about their products' verification history.
+- **Mobile Application**: Developing native mobile apps for iOS and Android to provide a more seamless user experience for consumers.
 
-## Getting started
+## Project Structure
 
-### Prerequisites
+The VeriChain project is organized as a monorepo with a clear separation of concerns:
 
-- Midnight toolchain and testnet access
-- Node.js (for the dApps)
+```
+verichain/
+├── docker/                 # Midnight Network services
+│   ├── node/
+│   ├── indexer/
+│   └── proofserver/
+├── frontend/               # React application
+│   ├── src/
+│   └── package.json
+├── package/
+│   ├── api/               # Backend API
+│   │   ├── src/
+│   │   ├── prisma/
+│   │   └── package.json
+│   └── midnight/
+│       └── api/verichain/ # Blockchain API package
+└── README.md
+```
 
-### Setup
+## Documentation
 
-1. Install dependencies in each subfolder (e.g. `npm install` or `pnpm install`).
-2. Configure environment variables for Midnight RPC and test tokens.
-3. Deploy contracts, then run the manufacturer and consumer dApps.
+For a deeper dive into the project's architecture, core concepts, and code, please refer to our comprehensive documentation:
 
-## Naming
-
-Suggested project name: VeriChain
+- **[Documentation Home](./docs/index.md)**
+- **[Project Overview](./docs/project-overview.md)**
+- **[Core Concepts](./docs/core-concepts.md)**
+- **[Code Explanation](./docs/code-explanation.md)**
+- **[Midnight Beginner Guide](./docs/midnight-beginner-guide.md)**
 
 ## License
 
-MIT
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
