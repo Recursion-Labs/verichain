@@ -39,6 +39,14 @@ The demand for verifiable products has never been higher.
 
 Every year, billions of products move through global supply chains without any cryptographic identity or verifiable history. The opportunity is massive: a universal system that gives every product a verifiable identity without compromising privacy. VeriChain is designed to fill this gap.
 
+### Current solutions fail because:
+- Public blockchains like Ethereum expose all supplier data.
+- Centralized systems (like GS1, SAP) are non-verifiable and opaque.
+- Businesses want verification without revealing trade secrets.
+
+### → The gap:
+ No privacy-preserving blockchain-based authenticity system that protects enterprise confidentiality while giving consumers public proof of trust.
+
 ## Our Solution: The VeriChain MVP
 
 VeriChain is a decentralized application that leverages the Midnight network to provide a privacy-first solution for product authenticity. Our Minimum Viable Product (MVP) demonstrates how businesses can register their products and generate authenticity proofs, while consumers can verify these proofs without either party exposing sensitive information.
