@@ -15,13 +15,29 @@ VeriChain is a privacy-preserving blockchain-based authenticity system that prot
 
 ## The Problem
 
-In today's market, there's a clear need for a system that can verify a product's authenticity without compromising sensitive business information. Here's why current solutions fall short:
+Counterfeiting is one of the world’s largest hidden economic losses. Over 500 billion dollars are lost every year across industries that depend on authenticity.
 
-- **Public blockchains**, like Ethereum, expose all supplier data, creating significant privacy risks for businesses.
-- **Centralized systems**, such as GS1 or SAP, are opaque and lack the verifiable trust that a blockchain can provide.
-- **The core conflict**: Businesses want to offer verification but are unwilling to reveal their trade secrets in the process.
+- **Luxury goods** lose over 100 billion annually.
+- **Pharmaceuticals** lose more than 200 billion, and in this case, counterfeits are not just an economic issue but a safety issue. Fake medicine can be lethal.
+- **Agriculture and exports** lose another 50 billion due to false origin claims, fake sustainability reports, and unverifiable supply chains.
 
-This creates a gap for a solution that can bridge the need for public trust with the requirement of enterprise privacy.
+Despite having QR codes, RFID tags, and digital traceability platforms, nothing guarantees that the information attached to a product is actually true. These systems still depend on centralized databases and trust-based verification. Labels can be copied, certificates can be forged, and QR codes can be duplicated in seconds.
+
+On the enterprise side, brands hesitate to reveal their supplier or manufacturing data because it exposes trade secrets and IP-sensitive processes. So even when companies want to prove authenticity, they cannot do it without risking private data leakage.
+
+The result is a global market where consumers cannot verify anything, businesses cannot prove their legitimacy without exposing confidential information, and regulators cannot trust the data they receive. Authenticity today is based almost entirely on trust, not proof.
+
+## The Tech and Market Gap
+
+The demand for verifiable products has never been higher.
+
+- **Luxury buyers** want provenance.
+- **Pharmaceutical supply chains** need safety, batch verification, and zero-counterfeit risk.
+- **Export markets** require clear origin and ESG compliance.
+- **Second-hand marketplaces** need reliable proof of legitimacy.
+- **Insurance** needs effortless authenticity checks.
+
+Every year, billions of products move through global supply chains without any cryptographic identity or verifiable history. The opportunity is massive: a universal system that gives every product a verifiable identity without compromising privacy. VeriChain is designed to fill this gap.
 
 ## Our Solution: The VeriChain MVP
 
@@ -79,9 +95,13 @@ verichain/
 For a deeper dive into the project's architecture, core concepts, and code, please refer to our comprehensive documentation:
 
 - **[Documentation Home](./docs/index.md)**
-- **[Project Overview](./docs/project-overview.md)**
-- **[Core Concepts](./docs/core-concepts.md)**
-- **[Code Explanation](./docs/code-explanation.md)**
+- **[01 - The Problem and Solution](./docs/01-problem-and-solution.md)**
+- **[02 - Architecture Overview](./docs/02-architecture-overview.md)**
+- **[03 - The Backend API](./docs/03-backend-api.md)**
+- **[04 - The Frontend Application](./docs/04-frontend-application.md)**
+- **[05 - Midnight Integration](./docs/05-midnight-integration.md)**
+- **[06 - The VeriChain Contract](./docs/06-the-verichain-contract.md)**
+- **[07 - Docker and Services](./docs/07-docker-and-services.md)**
 - **[Midnight Beginner Guide](./docs/midnight-beginner-guide.md)**
 
 ## License

@@ -6,9 +6,13 @@ This documentation provides a comprehensive overview of the VeriChain project, f
 
 ## Table of Contents
 
-- [Project Overview](./project-overview.md): A high-level look at VeriChain, its goals, and its architecture.
-- [Core Concepts](./core-concepts.md): An explanation of the fundamental concepts behind VeriChain, including the use of the Midnight network and ZK proofs.
-- [Code Explanation](./code-explanation.md): A detailed walkthrough of the VeriChain codebase.
-- [Midnight Beginner Guide](./midnight-beginner-guide.md): A guide for developers who want to start building on the Midnight network.
+- [01 - The Problem and Solution](./01-problem-and-solution.md)
+- [02 - Architecture Overview](./02-architecture-overview.md)
+- [03 - The Backend API](./03-backend-api.md)
+- [04 - The Frontend Application](./04-frontend-application.md)
+- [05 - Midnight Integration](./05-midnight-integration.md)
+- [06 - The VeriChain Contract](./06-the-verichain-contract.md)
+- [07 - Docker and Services](./07-docker-and-services.md)
+- [Midnight Beginner Guide](./midnight-beginner-guide.md)
 
 We hope you find this documentation helpful. If you have any questions or suggestions, please feel free to open an issue on our GitHub repository.
